@@ -127,21 +127,21 @@ class OffensiveReflexAgent(ReflexCaptureAgent):
         features['successor_score'] = -len(food_list)
         opponents = self.get_opponents(game_state)
 
-        # Compute distance to the nearest normal food
+        #Compute distance to the nearest normal food
         if len(food_list) > 0:
             min_distance = min([self.get_maze_distance(my_pos, food) for food in food_list])
             features['distance_to_food'] = min_distance
         
-        # Compute distance to the nearest power capsule
+        #compute distance to the nearest power capsule
         if len(capsules) > 0:
             min_distance_c = min([self.get_maze_distance(my_pos, c) for c in capsules])
             features['distance_to_capsules'] = min_distance_c
 
-        # Evitamos pararnos
+        #evitamos pararnos
         if action == Directions.STOP:
             features['stop'] = 1
 
-        # Comprobamos si hay algun enemigo cerca
+        #comprobamos si hay algun enemigo cerca
         enemies = [game_state.get_agent_state(o) for o in opponents]
         visible = [e for e in enemies if e.get_position() is not None]
         scared = any(e.scared_timer > 0 for e in visible)
