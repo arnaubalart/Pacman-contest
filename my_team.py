@@ -83,7 +83,7 @@ class ReflexCaptureAgent(CaptureAgent):
         successor = game_state.generate_successor(self.index, action)
         pos = successor.get_agent_state(self.index).get_position()
         if pos != nearest_point(pos):
-            # Only half a grid position was covered
+            #only half a grid position was covered
             return successor.generate_successor(self.index, action)
         else:
             return successor
@@ -141,16 +141,16 @@ class OffensiveReflexAgent(ReflexCaptureAgent):
         if action == Directions.STOP:
             features['stop'] = 1
 
-        #comprobamos si hay algun enemigo cerca
+        #comprobamos si hay algun enemigo cerca, y si está asustado no nos importa su cercanía
+        #comprobamos posición de los enemigos visibles
         enemies = [game_state.get_agent_state(o) for o in opponents]
         visible = [e for e in enemies if e.get_position() is not None]
         scared = any(e.scared_timer > 0 for e in visible)
 
-        # Evitamos cruzar frontera si hay algun enemigo cerca
         my_old = game_state.get_agent_position(self.index)
         is_red = self.red
         mid = game_state.get_walls().width // 2
-
+        #función para conocer el lado enemigo
         def enemy_side(pos):
             return pos[0] >= mid if is_red else pos[0] < mid
 
@@ -159,7 +159,6 @@ class OffensiveReflexAgent(ReflexCaptureAgent):
         else:
             crossing = (not enemy_side(my_old)) and enemy_side(my_pos)
 
-        # Inicializar enemy_distance para evitar KeyError antes de usarla
         if len(visible) > 0:
             dists = [self.get_maze_distance(my_pos, e.get_position()) for e in visible]
             nearest = min(dists)
@@ -210,7 +209,7 @@ class DefensiveReflexAgent(ReflexCaptureAgent):
 
     def register_initial_state(self, game_state):
         super().register_initial_state(game_state)
-        # guardamos la comida inicial para comparar despues
+        #guardamos la comida inicial para comparar despues
         self.last_food = self.get_food_you_are_defending(game_state).as_list()
 
     def get_features(self, game_state, action):
@@ -219,7 +218,7 @@ class DefensiveReflexAgent(ReflexCaptureAgent):
         my_state = successor.get_agent_state(self.index)
         my_pos = my_state.get_position()
 
-        #no queremos ser pacman, queremos ser fantasma 
+        #no queremos ser pacman
         features['on_defense'] = 1
         if my_state.is_pacman: features['on_defense'] = 0
 
@@ -229,7 +228,7 @@ class DefensiveReflexAgent(ReflexCaptureAgent):
         features['num_invaders'] = len(invaders)
 
         if len(invaders) > 0:
-            # Si hay invasores, vamos a por ellos
+            #si hay invasores, vamos a por ellos
             dists = [self.get_maze_distance(my_pos, a.get_position()) for a in invaders]
             features['invader_distance'] = min(dists)
         else:           
@@ -241,12 +240,11 @@ class DefensiveReflexAgent(ReflexCaptureAgent):
                 if len(diff) > 0:
                     self.target = list(diff)[0]
             self.last_food = current_food
-
-            # Si tenemos un objetivo de comida desaparecida, vamos alli
+          
             if self.target is not None:
                 features['investigate_distance'] = self.get_maze_distance(my_pos, self.target)
             
-            # Si hemos llegado o no hay objetivo, patrullamos el centro
+            #si hemos llegado o no hay objetivo, patrullamos el centro
             if self.target is None or my_pos == self.target:
                 self.target = None
                 #Buscamos la comida mas cercana al centro para protegerla
@@ -278,12 +276,12 @@ class DefensiveReflexAgent(ReflexCaptureAgent):
             'on_defense': 100,
             'center_patrol': -2,
             'investigate_distance': -5,
-            'retreat': -100,  #Importante para no quedarnos atascados en el lado enemigo
+            'retreat': -100,
             'stop': -100,
             'reverse': -2,
         }
         
-        # Si estamos asustados no perseguimos tanto
+        #si estamos asustados no perseguimos tanto
         my_state = game_state.get_agent_state(self.index)
         if my_state.scared_timer > 0:
             weights['invader_distance'] = -1 
