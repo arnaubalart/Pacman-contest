@@ -222,7 +222,7 @@ class DefensiveReflexAgent(ReflexCaptureAgent):
         features['on_defense'] = 1
         if my_state.is_pacman: features['on_defense'] = 0
 
-        # Miramos si hay enemigos visibles
+        #miramos si hay enemigos visibles
         enemies = [successor.get_agent_state(i) for i in self.get_opponents(successor)]
         invaders = [a for a in enemies if a.is_pacman and a.get_position() is not None]
         features['num_invaders'] = len(invaders)
@@ -235,7 +235,6 @@ class DefensiveReflexAgent(ReflexCaptureAgent):
             #Miramos si nos han comido comida
             current_food = self.get_food_you_are_defending(successor).as_list()
             if len(current_food) < len(self.last_food):
-                # Calcular la diferencia para saber donde ir
                 diff = set(self.last_food) - set(current_food)
                 if len(diff) > 0:
                     self.target = list(diff)[0]
@@ -244,10 +243,9 @@ class DefensiveReflexAgent(ReflexCaptureAgent):
             if self.target is not None:
                 features['investigate_distance'] = self.get_maze_distance(my_pos, self.target)
             
-            #si hemos llegado o no hay objetivo, patrullamos el centro
+            #miramos si hemos llegado o no hay objetivo y nos quedamos en el centro
             if self.target is None or my_pos == self.target:
                 self.target = None
-                #Buscamos la comida mas cercana al centro para protegerla
                 mid_x = game_state.data.layout.width // 2
                 best_dist = 9999
                 best_food = None
